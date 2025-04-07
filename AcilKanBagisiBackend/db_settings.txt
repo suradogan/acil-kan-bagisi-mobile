@@ -1,0 +1,15 @@
+﻿DATABASES = {
+    'default': {
+        'ENGINE': 'djongo',
+        'NAME': os.getenv('MONGO_DB_NAME', 'acilkan'),
+        'CLIENT': {
+            'host': os.getenv('MONGO_URI'),
+            'ssl': True,
+            'ssl_cert_reqs': 'CERT_NONE',
+            'connectTimeoutMS': 30000,
+            'socketTimeoutMS': 30000,
+            'retryWrites': True,
+            'w': 'majority'
+        }
+    }
+}
