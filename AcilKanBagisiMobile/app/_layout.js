@@ -33,6 +33,34 @@ export default function RootLayout() {
             headerShown: true
           }} 
         />
+        <Stack.Screen 
+          name="profile" 
+          options={{
+            title: "Profilim",
+            headerShown: true
+          }} 
+        />
+        <Stack.Screen 
+          name="donations" 
+          options={{
+            title: "Bağış Geçmişim",
+            headerShown: true
+          }} 
+        />
+        <Stack.Screen 
+          name="add-donation" 
+          options={{
+            title: "Yeni Bağış Ekle",
+            headerShown: false
+          }} 
+        />
+        <Stack.Screen 
+          name="emergency-request" 
+          options={{
+            title: "Acil Kan Talebi",
+            headerShown: false
+          }} 
+        />
       </Stack>
     </AuthProvider>
   );
