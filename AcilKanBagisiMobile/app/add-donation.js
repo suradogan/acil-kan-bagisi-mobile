@@ -76,23 +76,19 @@ export default function AddDonationScreen() {
     try {
       setLoading(true);
       
-      // API ile bağış kaydı oluşturulacak
-      // await api.createDonation({
-      //   donation_center: selectedCenter,
-      //   date: donationDate.toISOString().split('T')[0],
-      //   quantity: parseInt(quantity),
-      //   note: notes
-      // });
+      await api.createDonation({
+        donation_center: selectedCenter,
+        date: donationDate.toISOString().split('T')[0],
+        quantity: parseInt(quantity),
+        note: notes
+      });
       
-      // Şimdilik bir gecikme ve başarı mesajı gösteriyoruz
-      setTimeout(() => {
-        setLoading(false);
-        Alert.alert(
-          'Başarılı',
-          'Bağış kaydınız başarıyla oluşturuldu.',
-          [{ text: 'Tamam', onPress: () => router.replace('/donations') }]
-        );
-      }, 1500);
+      setLoading(false);
+      Alert.alert(
+        'Başarılı',
+        'Bağış kaydınız başarıyla oluşturuldu.',
+        [{ text: 'Tamam', onPress: () => router.back() }]
+      );
       
     } catch (error) {
       Alert.alert('Hata', error.message || 'Bağış kaydedilirken bir hata oluştu');
@@ -209,7 +205,7 @@ const styles = StyleSheet.create({
   },
   header: {
     backgroundColor: '#E53935',
-    paddingTop: 20,
+    paddingTop: 50,
     paddingBottom: 20,
     paddingHorizontal: 20,
     flexDirection: 'row',

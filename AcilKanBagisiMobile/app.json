@@ -5,17 +5,37 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "myapp",
-    "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/images/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.acilkanbagisi.mobile",
+      "config": {
+        "googleMapsApiKey": "AIzaSyBALiEI_RbjdpxsRX1kAhG2mDNLRakV98M"
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.acilkanbagisi.mobile",
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyBALiEI_RbjdpxsRX1kAhG2mDNLRakV98M"
+        }
+      },
+      "permissions": [
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION"
+      ]
     },
     "web": {
       "bundler": "metro",
@@ -24,13 +44,11 @@
     },
     "plugins": [
       "expo-router",
+      "react-native-reanimated",
       [
-        "expo-splash-screen",
+        "expo-location",
         {
-          "image": "./assets/images/splash-icon.png",
-          "imageWidth": 200,
-          "resizeMode": "contain",
-          "backgroundColor": "#ffffff"
+          "locationAlwaysAndWhenInUsePermission": "Kan bağışı merkezlerini bulmak için konum bilginize ihtiyacımız var."
         }
       ]
     ],

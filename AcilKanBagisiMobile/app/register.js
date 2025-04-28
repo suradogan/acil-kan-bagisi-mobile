@@ -1,8 +1,9 @@
-﻿import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
+﻿import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, ActivityIndicator, Alert } from 'react-native';
 import { useState } from 'react';
 import { router } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
 import { Picker } from '@react-native-picker/picker';
+import { api } from '../src/services/api';
 
 export default function Register() {
   const [name, setName] = useState('');
@@ -60,6 +61,19 @@ export default function Register() {
 
   const goToLogin = () => {
     router.replace("/login");
+  };
+
+  const testApiConnection = async () => {
+    try {
+      setLoading(true);
+      setError('');
+      const result = await api.testConnection();
+      setError(`Bağlantı başarılı: ${result.message}`);
+    } catch (error) {
+      setError("Bağlantı hatası: " + error.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -125,6 +139,18 @@ export default function Register() {
           <ActivityIndicator color="#fff" />
         ) : (
           <Text style={styles.buttonText}>Kayıt Ol</Text>
+        )}
+      </TouchableOpacity>
+      
+      <TouchableOpacity 
+        style={[styles.button, {backgroundColor: '#4CAF50', marginTop: 10}]} 
+        onPress={testApiConnection}
+        disabled={loading}
+      >
+        {loading ? (
+          <ActivityIndicator color="#fff" />
+        ) : (
+          <Text style={styles.buttonText}>API Bağlantısını Test Et</Text>
         )}
       </TouchableOpacity>
       

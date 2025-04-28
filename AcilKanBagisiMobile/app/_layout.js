@@ -1,67 +1,38 @@
-﻿import { Stack } from 'expo-router';
+﻿import React from 'react';
+import { Stack } from 'expo-router';
 import { AuthProvider } from '../src/context/AuthContext';
+import { NavigationContainer } from '@react-navigation/native';
 
 export default function RootLayout() {
   return (
-    <AuthProvider>
-      <Stack>
-        <Stack.Screen 
-          name="index" 
-          options={{
-            title: "Acil Kan Bağışı",
-            headerShown: false
-          }} 
-        />
-        <Stack.Screen 
-          name="login" 
-          options={{
-            title: "Giriş Yap",
-            headerShown: false
-          }} 
-        />
-        <Stack.Screen 
-          name="register" 
-          options={{
-            title: "Kayıt Ol",
-            headerShown: false
-          }} 
-        />
-        <Stack.Screen 
-          name="home" 
-          options={{
-            title: "Ana Sayfa",
-            headerShown: true
-          }} 
-        />
-        <Stack.Screen 
-          name="profile" 
-          options={{
-            title: "Profilim",
-            headerShown: true
-          }} 
-        />
-        <Stack.Screen 
-          name="donations" 
-          options={{
-            title: "Bağış Geçmişim",
-            headerShown: true
-          }} 
-        />
-        <Stack.Screen 
-          name="add-donation" 
-          options={{
-            title: "Yeni Bağış Ekle",
-            headerShown: false
-          }} 
-        />
-        <Stack.Screen 
-          name="emergency-request" 
-          options={{
-            title: "Acil Kan Talebi",
-            headerShown: false
-          }} 
-        />
-      </Stack>
-    </AuthProvider>
+    <NavigationContainer>
+      <AuthProvider>
+        <Stack
+          screenOptions={{
+            headerShown: false,
+            contentStyle: { backgroundColor: 'white' },
+          }}
+        >
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="index" options={{ headerShown: false }} />
+          <Stack.Screen name="login" options={{ headerShown: false }} />
+          <Stack.Screen name="register" options={{ headerShown: false }} />
+          <Stack.Screen 
+            name="emergency-request" 
+            options={{ 
+              headerShown: true,
+              title: "Acil Kan İhtiyacı" 
+            }} 
+          />
+          <Stack.Screen 
+            name="add-donation" 
+            options={{ 
+              headerShown: true,
+              title: "Kan Bağışı Ekle" 
+            }} 
+          />
+        </Stack>
+      </AuthProvider>
+    </NavigationContainer>
   );
 }
