@@ -10,7 +10,8 @@ SECRET_KEY = "django-insecure-j3nf8!^z@&yz@ch8d*1u4#%i!*wnd9&hut_a9&6rl40b*voe0e
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", "10.0.2.2", "10.95.17.205", "10.196.181.63", "*"]
+
 
 # Application definition
 INSTALLED_APPS = [
@@ -27,6 +28,7 @@ INSTALLED_APPS = [
     "api",
     "users",
     "donations",
+    "donation_centers",
 ]
 
 MIDDLEWARE = [
@@ -166,3 +168,6 @@ SIMPLE_JWT = {
     "SLIDING_TOKEN_LIFETIME": timedelta(days=1),
     "SLIDING_TOKEN_REFRESH_LIFETIME": timedelta(days=7),
 }
+
+CSRF_COOKIE_SECURE = False
+SESSION_COOKIE_SECURE = False
