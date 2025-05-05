@@ -2,7 +2,52 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // API URL'i
-const API_URL = "http://10.0.2.2:8000/api"; // Android emülatör için
+// Farklı ortamlar için URLs
+const possibleIPs = [
+  "10.0.2.2", // Android emulator için
+  "localhost",
+  "127.0.0.1",
+  "10.196.181.63", // Şu anki IP'niz 
+  "192.168.1.104", // Yaygın yerel IP
+  "192.168.0.104"  // Yaygın yerel IP
+];
+
+// Bağlantı testi yapan fonksiyon
+const findWorkingAPI = async () => {
+  for (const ip of possibleIPs) {
+    const testUrl = `http://${ip}:8000/api`;
+    try {
+      console.log(`${testUrl} adresini test ediyorum...`);
+      const response = await axios.get(`${testUrl}/users/test/`, {
+        timeout: 3000 // Kısa bir timeout ile test et
+      });
+      
+      if (response.status === 200) {
+        console.log(`Çalışan API URL'i bulundu: ${testUrl}`);
+        return testUrl;
+      }
+    } catch (error) {
+      console.log(`${testUrl} bağlantı hatası:`, error.message);
+    }
+  }
+  
+  console.log("Çalışan bir API URL'i bulunamadı, mock API kullanılacak.");
+  return null;
+};
+
+// API URL'ini belirle
+let API_URL = "http://localhost:8000/api"; // Varsayılan URL
+
+// API URL'ini başlangıçta ayarla
+(async () => {
+  const workingUrl = await findWorkingAPI();
+  if (workingUrl) {
+    API_URL = workingUrl;
+  } else {
+    // Mock API kullanılacak
+    API_URL = "https://54b3-5-176-252-182.ngrok-free.app/api";  // Ngrok'tan aldığınız URL
+  }
+})();
 
 // Token'ı async storage'a kaydetme
 const storeToken = async (token) => {
@@ -56,13 +101,22 @@ const getUser = async () => {
 const register = async (userData) => {
   try {
     console.log("API: Kayıt isteği gönderiliyor:", userData);
-    const response = await axios.post(`${API_URL}/users/register/`, userData);
+    console.log("API URL:", API_URL);
+    console.log("Tam istek URL'i:", `${API_URL}/users/register/`);
+    
+    // API timeout süresini artıralım
+    const response = await axios.post(`${API_URL}/users/register/`, userData, {
+      timeout: 30000,  // 30 saniye
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    });
+    
     console.log("API: Kayıt yanıtı:", response.data);
     
     if (response.data.user) {
       await storeUser(response.data.user);
       
-      // Django'da token alabilmek için login endpoint'ine de istek atmalıyız
       if (response.data.access) {
         await storeToken(response.data.access);
         return {
@@ -70,15 +124,22 @@ const register = async (userData) => {
           token: response.data.access
         };
       }
-      
-      // Access token yoksa login endpoint'ine istek at
-      const loginResponse = await login(userData.email, userData.password);
-      return loginResponse;
     }
     return response.data;
   } catch (error) {
-    console.error("Register error:", error.response ? error.response.data : error.message);
-    throw error.response ? error.response.data : new Error("Kayıt sırasında bir hata oluştu");
+    console.error("Register error:", error);
+    
+    if (error.response) {
+      console.error("Status:", error.response.status);
+      console.error("Data:", error.response.data);
+      
+      // Kullanıcı dostu hata mesajı döndür
+      if (error.response.data && error.response.data.error) {
+        throw new Error(error.response.data.error);
+      }
+    } 
+    
+    throw new Error("Kayıt sırasında bir hata oluştu. Lütfen tekrar deneyin.");
   }
 };
 
@@ -333,13 +394,42 @@ const getActiveEmergencyRequests = async () => {
   }
 };
 
+// API bağlantı testi
+const testConnection = async () => {
+  try {
+    console.log("API: Bağlantı testi yapılıyor...");
+    console.log("Test URL:", `${API_URL}/users/test/`);
+    
+    const response = await axios.get(`${API_URL}/users/test/`, {
+      timeout: 15000  // 5000ms'den 15000ms'ye (15 saniye) yükselttik
+    });
+    
+    console.log("API Test yanıtı:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("API Test hatası:", error);
+    
+    if (error.response) {
+      console.error("Status:", error.response.status);
+      console.error("Data:", error.response.data);
+    } else if (error.request) {
+      console.error("Sunucu yanıt vermedi:", error.request);
+    } else {
+      console.error("Error:", error.message);
+    }
+    
+    throw new Error("API bağlantı testi başarısız: " + (error.message || "Bilinmeyen hata"));
+  }
+};
+
 // Dışa aktarılan fonksiyonlar
 export const api = {
-  register: mockRegister,
-  login: mockLogin,
+  register,
+  login,
   logout,
   getToken,
   getUser,
+  testConnection,
   updateProfile,
   getUserDonations,
   createDonation,
