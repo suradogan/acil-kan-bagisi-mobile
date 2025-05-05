@@ -10,6 +10,8 @@ import pymongo
 import traceback
 from django.conf import settings
 from .models import CustomUser
+from rest_framework_simplejwt.tokens import RefreshToken
+from datetime import datetime
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
@@ -43,11 +45,14 @@ def register_user(request):
         )
         print(f"Django kullanıcısı oluşturuldu: {user.email}")
         
-        # MongoDB'ye doğrudan kaydet
+        # JWT token oluştur
+        refresh = RefreshToken.for_user(user)
+        
+        # MongoDB'ye doğrudan kaydet - bu hata verirse bile kullanıcı kaydedilmiş olacak
         try:
             print("MongoDB'ye bağlanılıyor...")
             mongo_uri = "mongodb+srv://sura:sura123@cluster0.e2iejbs.mongodb.net/acilkan?retryWrites=true&w=majority&appName=Cluster0"
-            client = pymongo.MongoClient(mongo_uri)
+            client = pymongo.MongoClient(mongo_uri, serverSelectionTimeoutMS=5000)
             db = client['acilkan']
             users_collection = db['users']
             
@@ -67,6 +72,7 @@ def register_user(request):
         except Exception as e:
             print(f"MongoDB kayıt hatası: {e}")
             print(traceback.format_exc())
+            # MongoDB hatası normal işlemi engellemeyecek
         
         return Response({
             'message': 'Kullanıcı başarıyla kaydedildi.',
@@ -75,7 +81,9 @@ def register_user(request):
                 'email': user.email,
                 'full_name': user.full_name,
                 'blood_type': user.blood_type
-            }
+            },
+            'access': str(refresh.access_token),
+            'refresh': str(refresh)
         }, status=status.HTTP_201_CREATED)
     
     except Exception as e:
@@ -102,22 +110,9 @@ def login_user(request):
         
         if user is not None:
             print(f"Kullanıcı doğrulandı: {user.email}")
-            # MongoDB'den kullanıcı bilgilerini al
-            try:
-                print("MongoDB'den kullanıcı bilgileri alınıyor...")
-                mongo_uri = "mongodb+srv://sura:sura123@cluster0.e2iejbs.mongodb.net/acilkan?retryWrites=true&w=majority&appName=Cluster0"
-                client = pymongo.MongoClient(mongo_uri)
-                db = client['acilkan']
-                users_collection = db['users']
-                
-                mongo_user = users_collection.find_one({'email': email})
-                if mongo_user:
-                    print(f"MongoDB'den kullanıcı bulundu: {mongo_user}")
-                else:
-                    print("MongoDB'de kullanıcı bulunamadı, sadece Django veritabanında var.")
-            except Exception as e:
-                print(f"MongoDB sorgusu hatası: {e}")
-                print(traceback.format_exc())
+            
+            # SimpleJWT ile token oluştur
+            refresh = RefreshToken.for_user(user)
             
             return Response({
                 'message': 'Giriş başarılı.',
@@ -127,7 +122,8 @@ def login_user(request):
                     'full_name': user.full_name,
                     'blood_type': user.blood_type
                 },
-                'access': 'mock-token-123456789'
+                'access': str(refresh.access_token),
+                'refresh': str(refresh)
             }, status=status.HTTP_200_OK)
         else:
             print("Geçersiz kullanıcı kimlik bilgileri")
@@ -137,3 +133,18 @@ def login_user(request):
         print(f"Giriş hatası: {e}")
         print(traceback.format_exc())
         return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def test_connection(request):
+    try:
+        return Response({
+            'status': 'success',
+            'message': 'API bağlantısı çalışıyor!',
+            'timestamp': str(datetime.now())
+        }, status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response({
+            'status': 'error',
+            'message': str(e)
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
