@@ -61,6 +61,13 @@ export default function RootLayout() {
             headerShown: false
           }} 
         />
+        <Stack.Screen 
+          name="notifications" 
+          options={{
+            title: "Bildirimler",
+            headerShown: true
+          }} 
+        />
       </Stack>
     </AuthProvider>
   );

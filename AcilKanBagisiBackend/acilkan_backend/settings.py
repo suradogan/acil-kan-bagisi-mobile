@@ -28,6 +28,7 @@ INSTALLED_APPS = [
     "api",
     "users",
     "donations",
+    "notifications",
 ]
 
 MIDDLEWARE = [
@@ -170,3 +171,13 @@ SIMPLE_JWT = {
 
 CSRF_COOKIE_SECURE = False
 SESSION_COOKIE_SECURE = False
+
+# Bildirim sistemi ayarları
+NOTIFICATION_SETTINGS = {
+    'EMAIL_NOTIFICATIONS_ENABLED': True,
+    'SMS_NOTIFICATIONS_ENABLED': False,
+    'IN_APP_NOTIFICATIONS_ENABLED': True,
+    'NOTIFICATION_COLLECTION': 'notifications',
+    'FIREBASE_API_KEY': 'FIREBASE_SERVER_KEY',
+    'FCM_URL': 'https://fcm.googleapis.com/fcm/send'
+}
